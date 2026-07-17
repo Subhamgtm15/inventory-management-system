@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 | These endpoints do not require an authenticated user.
 */
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 /*

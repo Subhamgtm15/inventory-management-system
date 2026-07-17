@@ -11,6 +11,13 @@ interface LoginPayload {
   password: string;
 }
 
+interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+}
+
 interface LoginResponse {
   user: User;
   token: string;
@@ -37,6 +44,24 @@ export function useLogin() {
   return useMutation({
     mutationFn: async (payload: LoginPayload) => {
       const { data } = await api.post<LoginResponse>("/login", payload);
+      return data;
+    },
+    onSuccess: (data) => {
+      setToken(data.token);
+      queryClient.setQueryData(["me"], data.user);
+      router.replace("/dashboard");
+    },
+  });
+}
+
+// Handles registration: creates the account, stores the token, redirects.
+export function useRegister() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: RegisterPayload) => {
+      const { data } = await api.post<LoginResponse>("/register", payload);
       return data;
     },
     onSuccess: (data) => {

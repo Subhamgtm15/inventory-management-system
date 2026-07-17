@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useLogin } from "@/hooks/useAuth";
 import { getToken } from "@/lib/auth";
 import { getErrorMessage } from "@/lib/errors";
@@ -68,6 +69,13 @@ export default function LoginPage() {
             Sign in
           </Button>
         </form>
+
+        <p className="mt-4 text-center text-sm text-gray-500">
+          Don&apos;t have an account?{" "}
+          <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-700">
+            Sign up
+          </Link>
+        </p>
 
         <p className="mt-4 text-center text-xs text-gray-400">
           Demo: admin@inventory.test / password
