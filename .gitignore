@@ -1,0 +1,25 @@
+# Root-level ignores for the monorepo.
+# Each sub-project (backend/, frontend/) also has its own .gitignore.
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Dependencies (also covered by sub-gitignores)
+**/node_modules/
+backend/vendor/
+
+# Environment files (never commit secrets)
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Build output
+frontend/.next/
+frontend/out/
+backend/public/build/
+
+# Logs
+*.log
