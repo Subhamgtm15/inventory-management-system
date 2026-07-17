@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Default admin login for the Inventory Management System.
-        User::updateOrCreate(
+        $admin = User::updateOrCreate(
             ['email' => 'admin@inventory.test'],
             [
                 'name' => 'Admin',
@@ -25,10 +25,11 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Sample catalog data (only when the tables are empty).
-        if (Category::count() === 0) {
+        // Sample catalog data owned by the admin (only when empty).
+        if ($admin->categories()->count() === 0) {
             Category::factory(5)
-                ->has(Product::factory()->count(8))
+                ->for($admin)
+                ->has(Product::factory()->count(8)->for($admin))
                 ->create();
         }
     }

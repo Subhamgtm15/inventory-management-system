@@ -3,22 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ProductResource;
-use App\Models\Category;
-use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     /**
-     * Return dashboard summary statistics.
+     * Return dashboard summary statistics for the authenticated user.
      */
     public function index(Request $request): JsonResponse
     {
+        $user = $request->user();
+
         // Products at or below this quantity are considered "low stock".
         $threshold = $request->integer('low_stock_threshold', 10);
 
-        $lowStockProducts = Product::query()
+        $lowStockProducts = $user->products()
             ->with('category')
             ->where('quantity', '<=', $threshold)
             ->orderBy('quantity')
@@ -26,9 +26,9 @@ class DashboardController extends Controller
             ->get();
 
         return response()->json([
-            'total_products' => Product::count(),
-            'total_categories' => Category::count(),
-            'low_stock_count' => Product::where('quantity', '<=', $threshold)->count(),
+            'total_products' => $user->products()->count(),
+            'total_categories' => $user->categories()->count(),
+            'low_stock_count' => $user->products()->where('quantity', '<=', $threshold)->count(),
             'low_stock_threshold' => $threshold,
             'low_stock_products' => ProductResource::collection($lowStockProducts),
         ]);

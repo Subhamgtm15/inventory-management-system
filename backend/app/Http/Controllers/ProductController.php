@@ -14,11 +14,11 @@ use Illuminate\Http\Response;
 class ProductController extends Controller
 {
     /**
-     * List products with search, category filter, and pagination.
+     * List the authenticated user's products with search, category filter, and pagination.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $products = Product::query()
+        $products = $request->user()->products()
             ->with('category')
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = $request->string('search');
@@ -37,11 +37,11 @@ class ProductController extends Controller
     }
 
     /**
-     * Store a new product.
+     * Store a new product owned by the authenticated user.
      */
     public function store(StoreProductRequest $request): JsonResponse
     {
-        $product = Product::create($request->validated());
+        $product = $request->user()->products()->create($request->validated());
 
         return (new ProductResource($product->load('category')))
             ->response()
@@ -49,30 +49,44 @@ class ProductController extends Controller
     }
 
     /**
-     * Show a single product.
+     * Show a single product (must belong to the authenticated user).
      */
-    public function show(Product $product): ProductResource
+    public function show(Request $request, Product $product): ProductResource
     {
+        $this->authorizeOwner($request, $product);
+
         return new ProductResource($product->load('category'));
     }
 
     /**
-     * Update an existing product.
+     * Update an existing product (must belong to the authenticated user).
      */
     public function update(UpdateProductRequest $request, Product $product): ProductResource
     {
+        $this->authorizeOwner($request, $product);
+
         $product->update($request->validated());
 
         return new ProductResource($product->load('category'));
     }
 
     /**
-     * Delete a product.
+     * Delete a product (must belong to the authenticated user).
      */
-    public function destroy(Product $product): Response
+    public function destroy(Request $request, Product $product): Response
     {
+        $this->authorizeOwner($request, $product);
+
         $product->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * Abort with 404 if the product does not belong to the current user.
+     */
+    private function authorizeOwner(Request $request, Product $product): void
+    {
+        abort_if($product->user_id !== $request->user()->id, Response::HTTP_NOT_FOUND);
     }
 }

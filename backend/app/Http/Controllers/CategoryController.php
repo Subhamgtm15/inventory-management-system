@@ -14,11 +14,11 @@ use Illuminate\Http\Response;
 class CategoryController extends Controller
 {
     /**
-     * List categories with optional search and pagination.
+     * List the authenticated user's categories with optional search and pagination.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $categories = Category::query()
+        $categories = $request->user()->categories()
             ->withCount('products')
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = $request->string('search');
@@ -31,11 +31,11 @@ class CategoryController extends Controller
     }
 
     /**
-     * Store a new category.
+     * Store a new category owned by the authenticated user.
      */
     public function store(StoreCategoryRequest $request): JsonResponse
     {
-        $category = Category::create($request->validated());
+        $category = $request->user()->categories()->create($request->validated());
 
         return (new CategoryResource($category))
             ->response()
@@ -43,30 +43,45 @@ class CategoryController extends Controller
     }
 
     /**
-     * Show a single category.
+     * Show a single category (must belong to the authenticated user).
      */
-    public function show(Category $category): CategoryResource
+    public function show(Request $request, Category $category): CategoryResource
     {
+        $this->authorizeOwner($request, $category);
+
         return new CategoryResource($category->loadCount('products'));
     }
 
     /**
-     * Update an existing category.
+     * Update an existing category (must belong to the authenticated user).
      */
     public function update(UpdateCategoryRequest $request, Category $category): CategoryResource
     {
+        $this->authorizeOwner($request, $category);
+
         $category->update($request->validated());
 
         return new CategoryResource($category);
     }
 
     /**
-     * Delete a category.
+     * Delete a category (must belong to the authenticated user).
      */
-    public function destroy(Category $category): Response
+    public function destroy(Request $request, Category $category): Response
     {
+        $this->authorizeOwner($request, $category);
+
         $category->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * Abort with 404 if the category does not belong to the current user.
+     * (404 rather than 403 avoids leaking the existence of other users' data.)
+     */
+    private function authorizeOwner(Request $request, Category $category): void
+    {
+        abort_if($category->user_id !== $request->user()->id, Response::HTTP_NOT_FOUND);
     }
 }

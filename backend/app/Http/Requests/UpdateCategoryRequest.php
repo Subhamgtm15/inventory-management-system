@@ -24,7 +24,7 @@ class UpdateCategoryRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('categories', 'name')->ignore($categoryId),
+                Rule::unique('categories', 'name')->where('user_id', $this->user()->id)->ignore($categoryId),
             ],
             'description' => ['nullable', 'string'],
         ];
