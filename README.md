@@ -10,16 +10,6 @@ A full-stack Inventory Management System with a **Laravel 12** REST API backend 
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss)
 
-## Screenshots
-
-| Dashboard | Products |
-|-----------|----------|
-| ![Dashboard](docs/screenshots/dashboard.png) | ![Products](docs/screenshots/products.png) |
-
-| Categories | Login |
-|------------|-------|
-| ![Categories](docs/screenshots/categories.png) | ![Login](docs/screenshots/login.png) |
-
 ## Tech Stack
 
 **Backend**
